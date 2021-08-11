@@ -38,6 +38,24 @@ class RenderWindow{
             
             switch (event.type)
             {
+            case SDL_MOUSEMOTION:
+                mouse_pos = {event.motion.x, event.motion.y};
+                if (left_mouse_button_down && selected_rect != nullptr){
+                    game.update_mouse_pos(mouse_pos);
+                }
+                break;
+            case SDL_MOUSEBUTTONUP:
+                if (left_mouse_button_down && event.button.button == SDL_BUTTON_LEFT){
+                    left_mouse_button_down = false;
+                    game.end_dragging(mouse_pos);
+                }
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                if (!left_mouse_button_down && event.button.button == SDL_BUTTON_LEFT){
+                    left_mouse_button_down = true;
+                    game.start_dragging(mouse_pos);
+                }
+                break;
             case SDL_KEYDOWN:
                 printf("The %s key was pressed!\n", SDL_GetKeyName(event.key.keysym.sym));
                 break;
@@ -78,6 +96,12 @@ class RenderWindow{
 
     private:
         bool is_running = true;
+        bool left_mouse_button_down = false;
+
+        SDL_Point mouse_pos;
+        SDL_Rect* selected_rect;
+        SDL_Point click_offset;
+
         SDL_Window* window;
         SDL_Renderer* renderer;
         Game game;

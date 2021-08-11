@@ -8,18 +8,20 @@
 #include <bitset>
 
 #include "Math.hpp"
+#include "Move.hpp"
 #include "Utils.hpp"
 
 #define TILE_WIDTH 75
 #define PIECE_WIDTH 50
 
+#define SCREEN_WIDTH 1280
+#define SCREEN_HEIGHT 720
+
 enum class BitboardPieceType : uint8_t {
-        White, Black, Pawn, Knight, Bishop, Queen, King, Rook
+        White = 0, Black, Pawn, Knight, Bishop, Queen, King, Rook
 };
 
-struct Color{
-    int r, g, b, a;
-};
+
 
 class Board{
     public:
@@ -37,14 +39,14 @@ class Board{
         void init_board(){
             bitboards.resize(8);
             this->squares = {
-                                {'r', ' ', 'b', 'q', 'k', 'b', 'n', 'r'},
-                                {'p', 'p', 'p', 'p', ' ', 'p', 'p', 'p'},
-                                {' ', ' ', 'n', ' ', ' ', ' ', ' ', ' '},
-                                {' ', 'B', ' ', ' ', 'p', ' ', ' ', ' '},
-                                {' ', ' ', ' ', ' ', 'P', ' ', ' ', ' '},
-                                {' ', ' ', ' ', ' ', ' ', 'N', ' ', ' '},
-                                {'P', 'P', 'P', 'P', ' ', 'P', 'P', 'P'},
-                                {'R', 'N', 'B', 'Q', 'K', ' ', ' ', 'R'}
+                                {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
+                                {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
+                                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
+                                {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
+                                {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
 
                             };
             
@@ -100,6 +102,81 @@ class Board{
             
         }
 
+        Position getTilePos(SDL_Point mouse_pos){
+            this->mouse_pos = mouse_pos;
+            this->is_dragging = true;
+
+            int start_x = (SCREEN_WIDTH/2) - 4*TILE_WIDTH; int start_y = (SCREEN_HEIGHT/2) - 4*TILE_WIDTH;
+
+            mouse_pos.x -= start_x;
+            mouse_pos.y -= start_y;
+
+            int row_remainder = mouse_pos.y % TILE_WIDTH;
+            int row_ind = (int)(mouse_pos.y - row_remainder) / TILE_WIDTH;
+
+            int col_remainder = mouse_pos.x % TILE_WIDTH;
+            int col_ind = (int)(mouse_pos.x - col_remainder) / TILE_WIDTH;
+
+            cout << "From --> Row: " << row_ind << " , Col: " << col_ind << endl;
+            drag_from = {row_ind, col_ind};
+            return drag_from;
+
+        }
+
+        void updateMouse(SDL_Point mouse_pos) {
+            this->mouse_pos = mouse_pos;
+        }
+
+        void stopDragging(){
+            this->is_dragging = false;
+        }
+
+        void makeMove(Move* move){
+            cout << "Recieved the move" << endl;
+            cout << "Description: \nFrom " << move->from.row << ", " << move->from.col
+                 << "\nTo " << move->to.row << ", " << move->to.col << endl;
+
+            int from_i = 63 - (move->from.row*8 + move->from.col);
+            int to_i = 63 - (move->to.row*8 + move->to.col);
+
+
+            cout << "White Bitboard Before" << endl;
+            cout << bitboards[(int)BitboardPieceType::White] << endl;
+            cout << "to_i: " << to_i << "  from_i: " << from_i << endl;
+
+            bool is_white = bitboards[(int)BitboardPieceType::White][from_i] == 1;
+            cout << "is_white: " << is_white << endl;
+            cout << "val: " << bitboards[(int)BitboardPieceType::White][from_i] << endl;
+            for (int i = 2; i < 8; ++i){ // Basically untested
+                bitboards[i][to_i] = 0;
+
+                if (bitboards[i][from_i] == 1){
+                    bitboards[i][from_i] = 0;
+                    bitboards[i][to_i] = 1;
+                }
+            }
+
+            if (is_white){
+                bitboards[0][from_i] = 0;
+                bitboards[0][to_i] = 1;
+
+                bitboards[1][from_i] = 0;
+                bitboards[1][to_i] = 0;
+            }else{
+                bitboards[1][from_i] = 0;
+                bitboards[1][to_i] = 1;
+
+                bitboards[0][from_i] = 0;
+                bitboards[0][to_i] = 0;
+            }
+            
+            bitboards[(int)!is_white][to_i] = 1;
+
+            cout << "White Bitboard After" << endl;
+            cout << bitboards[(int)BitboardPieceType::White] << endl;
+
+        }
+
 
 
     private:
@@ -109,12 +186,8 @@ class Board{
         //              DRAWING AND RENDERING SECTION
         void drawPieces(){
 
-            //Get display width and height;
-            int screen_width = 1280; int screen_height = 720;
             bitset<64> top_left; top_left.set(63, true);
-
-
-            int start_x = (screen_width/2) - 4*TILE_WIDTH; int start_y = (screen_height/2) - 4*TILE_WIDTH;
+            int start_x = (SCREEN_WIDTH/2) - 4*TILE_WIDTH; int start_y = (SCREEN_HEIGHT/2) - 4*TILE_WIDTH;
             
             for (int row = 0; row < 8; ++row){
                 for (int col = 0; col < 8; ++col){
@@ -127,13 +200,18 @@ class Board{
 
                     Vector2i new_pos(new_x, new_y);
                     
+                    //If this is the piece that is being dragged...
+                    if (is_dragging && row == drag_from.row && col == drag_from.col){
+                        new_pos = {mouse_pos.x - PIECE_WIDTH/2, mouse_pos.y - PIECE_WIDTH/2};
+                    }
+
                     bitset<64> current_spot = top_left >> (row*8 + col);
                     if ( (current_spot & bitboards[(int)BitboardPieceType::White]) != 0){ //It is a white piece
                         //cout << "Trying to draw a piece!!" << endl;
-                        drawTile(new_pos, PIECE_WIDTH, this->lightPieceColor);
+                        drawTile(new_pos, PIECE_WIDTH, this->lightPieceColor, true);
                     }
                     if ( (current_spot & bitboards[(int)BitboardPieceType::Black]) != 0){ //It is a Black piece
-                        drawTile(new_pos, PIECE_WIDTH, this->darkPieceColor);
+                        drawTile(new_pos, PIECE_WIDTH, this->darkPieceColor, true);
                     }
                 }
             }
@@ -150,10 +228,8 @@ class Board{
             SDL_SetRenderDrawColor(renderer, 172, 221, 214, 120); 
             SDL_RenderClear(renderer);
 
-            //Get display width and height;
-            int screen_width = 1280; int screen_height = 720;
 
-            int start_x = (screen_width/2) - 4*TILE_WIDTH; int start_y = (screen_height/2) - 4*TILE_WIDTH;
+            int start_x = (SCREEN_WIDTH/2) - 4*TILE_WIDTH; int start_y = (SCREEN_HEIGHT/2) - 4*TILE_WIDTH;
             for (int row = 0; row < 8; ++row){
                 for (int col = 0; col < 8; ++col){
                     int new_x = start_x + col * TILE_WIDTH;
@@ -173,10 +249,11 @@ class Board{
             }
         }
 
-        void drawTile(Vector2i& pos, int width, Color color){
-            SDL_Rect rect = {pos.x, pos.y, width, width};
+        void drawTile(Vector2i& pos, int width, Color color, bool is_piece = false){
+            SDL_Rect* rect = new SDL_Rect();
+            rect->x = pos.x; rect->y = pos.y; rect->w = width; rect->h = width;
             SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
-            SDL_RenderFillRect(renderer, &rect);
+            SDL_RenderFillRect(renderer, rect);
         }
 
         //*********************************//
@@ -185,6 +262,12 @@ class Board{
 
         SDL_Renderer* renderer;
         bool player_side;
+        bool first = true;
+
+        Position drag_from;
+        SDL_Point mouse_pos;
+        bool is_dragging;
+
         Color lightTileColor = {230, 220, 186, 255};
         Color darkTileColor = {202, 167, 132, 255};
         Color lightPieceColor = {255, 191, 134, 255};

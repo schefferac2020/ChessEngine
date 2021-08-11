@@ -1,6 +1,19 @@
-#pragma once
+#ifndef UTILS_HPP
+#define UTILS_HPP
 #include <SDL2/SDL.h>
 
+
+struct Color{
+    int r, g, b, a;
+};
+
+struct Position{
+    int row, col;
+};
+
+enum class PieceType {
+        WhitePawn=0, WhiteKnight, WhiteBishop, WhiteQueen, WhiteKing, WhiteRook, BlackPawn, BlackKnight, BlackBishop, BlackQueen, BlackKing, BlackRook, Nothing
+};
 
 namespace utils {
     inline float hireTimeInSeconds() {
@@ -11,9 +24,7 @@ namespace utils {
     }
 
 
-    enum class Piece {
-        WhitePawn, WhiteKnight, WhiteBishop, WhiteQueen, WhiteKing, WhiteRook, BlackPawn, BlackKnight, BlackBishop, BlackQueen, BlackKing, BlackRook, Nothing
-    };
+    
 
 
     //Do everthing with bit operations....
@@ -57,3 +68,4 @@ namespace utils {
 
 
 }
+#endif

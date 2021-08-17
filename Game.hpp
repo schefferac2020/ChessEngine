@@ -11,8 +11,8 @@
 class Game{
     public:
         Game() {
-            player1 = new Player("Player 1", true);
-            player2 = new Player("Player 2", true);
+            player1 = new Player("Player 1", true, true, false); // name, is_human, is_white, on_top
+            player2 = new Player("Player 2", true, false, true);
 
             this->current_player = player1;
 
@@ -52,13 +52,13 @@ class Game{
                 current_player->setMoveTo(move_to_pos);
 
                 //Make the human move;
-                Move* human_move = current_player->MakeMove();
+                cout << "Here" << endl;
+                Move* human_move = current_player->performMove(board);
                 if (human_move){ // If the move is valid;
                     board.makeMove(human_move);
+                    switch_player();
                 }
                 board.stopDragging();
-
-                switch_player();
 
             }
         }

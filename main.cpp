@@ -5,12 +5,14 @@
 #include <vector>
 
 #include "RenderWindow.hpp"
+
 #include "Entity.hpp"
 #include "Utils.hpp"
 
 using namespace std;
 
 int main(int argc, char** argv) {
+
     if (SDL_Init(SDL_INIT_VIDEO) > 0)
         cout << "SDL Init failed. SLD ERROR: " << SDL_GetError() << endl;
 

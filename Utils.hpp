@@ -1,6 +1,10 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 #include <SDL2/SDL.h>
+#include <iostream>
+#include <bitset>
+
+using namespace std;
 
 
 struct Color{
@@ -9,6 +13,15 @@ struct Color{
 
 struct Position{
     int row, col;
+
+    bool operator==(const Position& rhs){
+        return this->row == rhs.row && this->col == rhs.col;
+    }
+
+    ostream& operator<<(ostream& os){
+        os << "row: " << row << " col: " << col << endl;
+        return os;
+    }
 };
 
 enum class PieceType {
@@ -21,6 +34,19 @@ namespace utils {
         t *= 0.001f;
 
         return t;
+    }
+
+    inline void printBitboard(bitset<64>& selected){
+        for (int i = 0; i < 64; ++i){
+            if (i % 8 == 0){
+                cout << '\n';
+            }
+
+            int n = 63 - i;
+
+            cout << selected[n] << ' ';            
+        }
+        cout << endl;
     }
 
 

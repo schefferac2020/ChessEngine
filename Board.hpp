@@ -90,7 +90,6 @@ class Board{
                         if (tolower(current_piece) == current_piece){
                             //it is black
                             bitboards[(int)BitboardPieceType::Black] = bitboards[(int)BitboardPieceType::Black] | curr_piece_bit_string;
-                            //cout << bitboards[(int)BitboardPieceType::Black] << endl;
                         }else{
                             //it is white
                             bitboards[(int)BitboardPieceType::White] = bitboards[(int)BitboardPieceType::White] | curr_piece_bit_string;
@@ -99,6 +98,8 @@ class Board{
 
                 }
             }
+
+            bitset<64> black = bitboards[(int)BitboardPieceType::Black];
             
         }
 
@@ -132,21 +133,11 @@ class Board{
         }
 
         void makeMove(Move* move){
-            cout << "Recieved the move" << endl;
-            cout << "Description: \nFrom " << move->from.row << ", " << move->from.col
-                 << "\nTo " << move->to.row << ", " << move->to.col << endl;
-
             int from_i = 63 - (move->from.row*8 + move->from.col);
             int to_i = 63 - (move->to.row*8 + move->to.col);
 
-
-            cout << "White Bitboard Before" << endl;
-            cout << bitboards[(int)BitboardPieceType::White] << endl;
-            cout << "to_i: " << to_i << "  from_i: " << from_i << endl;
-
             bool is_white = bitboards[(int)BitboardPieceType::White][from_i] == 1;
-            cout << "is_white: " << is_white << endl;
-            cout << "val: " << bitboards[(int)BitboardPieceType::White][from_i] << endl;
+
             for (int i = 2; i < 8; ++i){ // Basically untested
                 bitboards[i][to_i] = 0;
 
@@ -172,12 +163,29 @@ class Board{
             
             bitboards[(int)!is_white][to_i] = 1;
 
-            cout << "White Bitboard After" << endl;
-            cout << bitboards[(int)BitboardPieceType::White] << endl;
 
         }
 
 
+
+
+
+        //*********************************//
+        //***** Class Level Variables *****//
+        //*********************************//
+
+        SDL_Renderer* renderer;
+        bool player_side;
+        bool first = true;
+
+        Position drag_from;
+        SDL_Point mouse_pos;
+        bool is_dragging;
+        vector<bitset<64> > bitboards;
+        uint64_t empty_board = 0;
+        uint64_t full_board;
+
+        vector<vector<char> > squares;
 
     private:
 
@@ -217,12 +225,6 @@ class Board{
             }
         }
 
-        // void drawPiece(Vector2i& pos, bool is_light, int width){
-        //     SDL_Rect rect = {pos.x, pos.y, width, width};
-        //     is_light ? SDL_SetRenderDrawColor(renderer, 230, 220, 186, 255) : SDL_SetRenderDrawColor(renderer, 202, 167, 132, 255);
-        //     SDL_RenderFillRect(renderer, &rect);
-        // }
-
         void drawBoard(){
             //background color
             SDL_SetRenderDrawColor(renderer, 172, 221, 214, 120); 
@@ -256,28 +258,10 @@ class Board{
             SDL_RenderFillRect(renderer, rect);
         }
 
-        //*********************************//
-        //***** Class Level Variables *****//
-        //*********************************//
-
-        SDL_Renderer* renderer;
-        bool player_side;
-        bool first = true;
-
-        Position drag_from;
-        SDL_Point mouse_pos;
-        bool is_dragging;
-
         Color lightTileColor = {230, 220, 186, 255};
         Color darkTileColor = {202, 167, 132, 255};
         Color lightPieceColor = {255, 191, 134, 255};
         Color darkPieceColor = {51, 153, 255, 255};
-
-        vector<bitset<64> > bitboards;
-        uint64_t empty_board = 0;
-        uint64_t full_board;
-
-        vector<vector<char> > squares;
 };
 
 #endif

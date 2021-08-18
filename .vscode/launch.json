@@ -1,20 +1,36 @@
+// EECS 281 VSCode Debugger Configuration
 {
     // Use IntelliSense to learn about possible attributes.
     // Hover to view descriptions of existing attributes.
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    
+    // /Applications/Xcode.app/Contents/Developer/usr/bin/lldb-mi
+
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(lldb) Launch",
+            "name": "DEBUG (MAC)",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/chess.exe",
             "args": [],
             "stopAtEntry": false,
-            "cwd": "${fileDirname}",
+            "cwd": "${workspaceFolder}",
             "environment": [],
             "externalConsole": false,
-            "MIMode": "lldb"
+            "MIMode": "lldb",
+        }, 
+        {
+            "name": "DEBUG (CAEN)",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/executable_debug",
+            "args": ["-s", "-o", "map", "<", "P1-samples/spec-A.txt"],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
+            "externalConsole": true,
+            "MIMode": "gdb"
         }
     ]
 }

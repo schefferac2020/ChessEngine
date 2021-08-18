@@ -8,11 +8,19 @@
 
 #include "Entity.hpp"
 #include "Utils.hpp"
+#include "BitOps.hpp"
 
 using namespace std;
 
 int main(int argc, char** argv) {
+    // BitOps ops;
+    // int i = 0;
+    // for (auto bitboard : ops.rays[(int)RayDirection::Southeast]){
+    //     cout << i++;
+    //     utils::printBitboard(bitboard);
+    // }
 
+    // return 0;
     if (SDL_Init(SDL_INIT_VIDEO) > 0)
         cout << "SDL Init failed. SLD ERROR: " << SDL_GetError() << endl;
 

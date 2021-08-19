@@ -4,4 +4,5 @@ chess:
 
 clean:
 	rm -rf chess.exe
+	rm -rf chess.exe.dSYM/
 	

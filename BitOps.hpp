@@ -20,6 +20,7 @@ class BitOps {
 
         bitset<64> rays[8][64]; //ray[Direction][Location]
         bitset<64> knights[64];
+        bitset<64> kings[64];
         bitset<64> trivial[64];
 
         BitOps() {
@@ -34,6 +35,7 @@ class BitOps {
             createSouthwestRays();
 
             createKnightBitboards();
+            createKingBitboards();
             createTrivialBitboards();
 
             
@@ -72,6 +74,35 @@ class BitOps {
 
                 bitset<64> curr(str);
                 knights[i] = curr;
+            }
+        }
+
+        void createKingBitboards(){
+            vector<int> mods = {-9, -8, -7, -1, 1, 7, 8, 9};
+            
+            
+            for (int i = 0; i < 64; ++i){
+                string str = base;
+
+                int curr_row =  (i - (i % 8))/8;
+                int curr_col = i % 8;
+                
+                for (int mod: mods){
+                    int new_spot = i + mod;
+                    int new_row =  (new_spot - (new_spot % 8))/8;
+                    int new_col = new_spot % 8;
+
+                    int rows_diff = new_row - curr_row;
+                    int cols_diff = new_col - curr_col;
+
+                    if ((rows_diff*rows_diff + cols_diff*cols_diff == 2 || rows_diff*rows_diff + cols_diff*cols_diff == 1) && new_spot < 64 && new_spot >= 0){
+                        str[new_spot] = '1';
+                    }
+
+                }
+
+                bitset<64> curr(str);
+                kings[i] = curr;
             }
         }
 

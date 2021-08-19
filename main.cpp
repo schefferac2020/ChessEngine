@@ -15,7 +15,7 @@ using namespace std;
 int main(int argc, char** argv) {
     // BitOps ops;
     // int i = 0;
-    // for (auto bitboard : ops.rays[(int)RayDirection::Southeast]){
+    // for (auto bitboard : ops.kings){
     //     cout << i++;
     //     utils::printBitboard(bitboard);
     // }

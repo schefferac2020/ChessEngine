@@ -40,7 +40,7 @@ class RenderWindow{
             {
             case SDL_MOUSEMOTION:
                 mouse_pos = {event.motion.x, event.motion.y};
-                if (left_mouse_button_down && selected_rect != nullptr){
+                if (left_mouse_button_down){
                     game.update_mouse_pos(mouse_pos);
                 }
                 break;
@@ -99,7 +99,6 @@ class RenderWindow{
         bool left_mouse_button_down = false;
 
         SDL_Point mouse_pos;
-        SDL_Rect* selected_rect;
         SDL_Point click_offset;
 
         SDL_Window* window;

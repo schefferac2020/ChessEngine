@@ -10,9 +10,10 @@
 #include "Math.hpp"
 #include "Move.hpp"
 #include "Utils.hpp"
+#include "Utils.hpp"
 
 #define TILE_WIDTH 75
-#define PIECE_WIDTH 50
+#define PIECE_WIDTH 40
 
 #define SCREEN_WIDTH 1280
 #define SCREEN_HEIGHT 720
@@ -20,8 +21,6 @@
 enum class BitboardPieceType : uint8_t {
         White = 0, Black, Pawn, Knight, Bishop, Queen, King, Rook
 };
-
-
 
 class Board{
     public:
@@ -99,7 +98,11 @@ class Board{
                 }
             }
 
-            bitset<64> black = bitboards[(int)BitboardPieceType::Black];
+            filenames = {"orangePawn.png", "orangeKnight.png", "orangeBishop.png", "orangeQueen.png", "orangeKing.png", "orangeRook.png",
+                        "bluePawn.png", "blueKnight.png", "blueBishop.png", "blueQueen.png", "blueKing.png", "blueRook.png"};
+            /*
+                WhitePawn=0, WhiteKnight, WhiteBishop, WhiteQueen, WhiteKing, WhiteRook, BlackPawn, BlackKnight, BlackBishop, BlackQueen, BlackKing, BlackRook, Nothing
+            */
             
         }
 
@@ -216,10 +219,39 @@ class Board{
                     bitset<64> current_spot = top_left >> (row*8 + col);
                     if ( (current_spot & bitboards[(int)BitboardPieceType::White]) != 0){ //It is a white piece
                         //cout << "Trying to draw a piece!!" << endl;
-                        drawTile(new_pos, PIECE_WIDTH, this->lightPieceColor, true);
+                        //drawTile(new_pos, PIECE_WIDTH, this->lightPieceColor, true);
+
+                        if ( (current_spot & bitboards[(int)BitboardPieceType::Pawn]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::WhitePawn);
+                        } else if ( (current_spot & bitboards[(int)BitboardPieceType::Rook]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::WhiteRook);
+                        } else if ( (current_spot & bitboards[(int)BitboardPieceType::Knight]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::WhiteKnight);
+                        }else if ( (current_spot & bitboards[(int)BitboardPieceType::Bishop]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::WhiteBishop);
+                        }else if ( (current_spot & bitboards[(int)BitboardPieceType::Queen]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::WhiteQueen);
+                        }else if ( (current_spot & bitboards[(int)BitboardPieceType::King]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::WhiteKing);
+                        }
+                        
                     }
                     if ( (current_spot & bitboards[(int)BitboardPieceType::Black]) != 0){ //It is a Black piece
-                        drawTile(new_pos, PIECE_WIDTH, this->darkPieceColor, true);
+                        //drawTile(new_pos, PIECE_WIDTH, this->darkPieceColor, true);
+
+                        if ( (current_spot & bitboards[(int)BitboardPieceType::Pawn]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::BlackPawn);
+                        } else if ( (current_spot & bitboards[(int)BitboardPieceType::Rook]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::BlackRook);
+                        } else if ( (current_spot & bitboards[(int)BitboardPieceType::Knight]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::BlackKnight);
+                        }else if ( (current_spot & bitboards[(int)BitboardPieceType::Bishop]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::BlackBishop);
+                        }else if ( (current_spot & bitboards[(int)BitboardPieceType::Queen]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::BlackQueen);
+                        }else if ( (current_spot & bitboards[(int)BitboardPieceType::King]) != 0){
+                            drawPiece(new_pos, PIECE_WIDTH, PieceType::BlackKing);
+                        }
                     }
                 }
             }
@@ -252,16 +284,35 @@ class Board{
         }
 
         void drawTile(Vector2i& pos, int width, Color color, bool is_piece = false){
+            
             SDL_Rect* rect = new SDL_Rect();
             rect->x = pos.x; rect->y = pos.y; rect->w = width; rect->h = width;
             SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
             SDL_RenderFillRect(renderer, rect);
         }
 
+        void drawPiece(Vector2i& pos, int width, PieceType piece_type){
+            
+            SDL_Rect* dest = new SDL_Rect();
+            dest->x = pos.x; dest->y = pos.y; dest->w = width; dest->h = width;
+            string file = "./res/gfx/" + filenames[(int) piece_type];
+            const char* file_cstr = file.c_str();
+            SDL_Texture* texture = IMG_LoadTexture(renderer, file_cstr);
+
+
+            SDL_RenderCopy(renderer, texture, NULL, dest);
+
+            SDL_DestroyTexture(texture);
+        }
+
+
         Color lightTileColor = {230, 220, 186, 255};
         Color darkTileColor = {202, 167, 132, 255};
         Color lightPieceColor = {255, 191, 134, 255};
         Color darkPieceColor = {51, 153, 255, 255};
+        int i = 0;
+
+        vector<string> filenames;
 };
 
 #endif

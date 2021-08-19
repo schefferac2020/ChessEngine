@@ -1,5 +1,7 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
+
+
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <bitset>

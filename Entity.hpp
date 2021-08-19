@@ -1,4 +1,6 @@
-#pragma once
+#ifndef ENTITY_HPP
+#define ENTITY_HPP
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <iostream>
@@ -33,3 +35,5 @@ class Entity {
         SDL_Rect current_frame;
         SDL_Texture* tex;   
 };
+
+#endif

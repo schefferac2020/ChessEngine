@@ -9,7 +9,7 @@ Decided to use bitmaps to store the game board. For more information see this [w
 Just finished a sudo legal move generator so it's almost fully playable. Just need to add en passant, castling, and promotion. Soon I'll be making a simple
 move search algorithm to find the next "best" move. 
 
-All the cool piece art was done by Emeline.
+All the cool piece art was done by [Emeline](https://github.com/EmRobotics).
 
 ## WARNING
 To all asthmatic readers stop reading now!!! The following joke is too funny.

@@ -79,7 +79,7 @@ class RenderWindow{
         }
 
         void update(){
-            //game.update;
+            game.update();
         }
 
         void clear(){

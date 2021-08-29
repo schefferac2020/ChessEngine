@@ -27,22 +27,20 @@ class MoveGenerator {
             //Generate pawn moves ----> TODO <--------------------------------- NOTE NOT EN PASSANT YET
             generatePawnOneForwardMoves(board);
             generatePawnTwoForwardMoves(board);            
-            generatePawnAttackingMovesLeft(board);
-            generatePawnAttackingMovesRight(board);
-
-            
+            generatePawnAttackingMovesLeft(board, false);
+            generatePawnAttackingMovesRight(board, false);
 
             //Generate Knight Moves
-            generateKnightMoves(board);
+            generateKnightMoves(board, false);
 
             //Generate rook moves
-            generateRookMoves(board);
+            generateRookMoves(board, false);
 
             //Generate bishop moves
-            generateBishopMoves(board);
+            generateBishopMoves(board, false);
 
             //Generate king moves
-            generateKingMoves(board);
+            generateKingMoves(board, false);
 
             return this->move_list;
         }
@@ -132,13 +130,17 @@ class MoveGenerator {
 
         //Generates all attacking pawn moves to the left
         
-        void generatePawnAttackingMovesLeft(Board& board){
+        void generatePawnAttackingMovesLeft(Board& board, bool is_enemy){
             //Do left attacks first
             bitset<64> shifted = on_top ? (friendly_pawns >> 9) : ((friendly_pawns) << 9);
             shifted &= on_top ? pawn_right_mask : pawn_left_mask;
 
             shifted &= eligable & enemy_pieces;
-             
+            
+            if (is_enemy){
+                this->enemy_attacking |= shifted;
+                return;
+            }
 
             while (shifted.count()){
                 int lsb = bitscanForward(shifted);
@@ -158,12 +160,17 @@ class MoveGenerator {
         }
 
         //Generates all attacking pawn moves to the right
-        void generatePawnAttackingMovesRight(Board& board){
+        void generatePawnAttackingMovesRight(Board& board, bool is_enemy){
             //Do left attacks first
             bitset<64> shifted = on_top ? (friendly_pawns >> 7) : ((friendly_pawns) << 7);
             shifted &= on_top ? pawn_left_mask : pawn_right_mask;
             shifted &= eligable & enemy_pieces;
             
+
+            if (is_enemy){
+                this->enemy_attacking |= shifted;
+                return;
+            }
 
             while (shifted.count()){
                 int lsb = bitscanForward(shifted);
@@ -183,7 +190,7 @@ class MoveGenerator {
         }
 
         //Generates all moves for the knight
-        void generateKnightMoves(Board& board){
+        void generateKnightMoves(Board& board, bool is_enemy){
             
             while (friendly_knights.any()){
                 int lsb_from = bitscanForward(friendly_knights);
@@ -191,6 +198,12 @@ class MoveGenerator {
                 Position from = {(from_square - from_square%8)/8, from_square % 8};
 
                 bitset<64> generated_moves = bitOps.knights[from_square] & eligable;
+                if (is_enemy){
+                    this->enemy_attacking |= generated_moves;
+                    friendly_knights ^= bitOps.trivial[lsb_from];
+                    continue;
+                }
+
                 while (generated_moves.any()){
                     int lsb_to = bitscanForward(generated_moves);
                     int to_square = 63 - lsb_to;
@@ -207,13 +220,21 @@ class MoveGenerator {
         }
 
         //Generates all of the king moves (does not account for check currently)
-        void generateKingMoves(Board& board){
+        void generateKingMoves(Board& board, bool is_enemy){
             while (friendly_kings.any()){
                 int lsb_from = bitscanForward(friendly_kings);
                 int from_square = 63 - lsb_from;
                 Position from = {(from_square - from_square%8)/8, from_square % 8};
 
                 bitset<64> generated_moves = bitOps.kings[from_square] & eligable;
+
+
+                if (is_enemy){
+                    this->enemy_attacking |= generated_moves;
+                    friendly_kings ^= bitOps.trivial[lsb_from];
+                    continue;
+                }
+
                 while (generated_moves.any()){
                     int lsb_to = bitscanForward(generated_moves);
                     int to_square = 63 - lsb_to;
@@ -230,7 +251,7 @@ class MoveGenerator {
         }
 
         //Generates all of the rook moves
-        void generateRookMoves(Board& board){
+        void generateRookMoves(Board& board, bool is_enemy){
             bitset<64> blockers = board.bitboards[(int)BitboardPieceType::Black] | board.bitboards[(int)BitboardPieceType::White];
             
             while (friendly_rooks.any()){
@@ -273,6 +294,11 @@ class MoveGenerator {
                 
                 attacks &= eligable;
 
+                if (is_enemy){
+                    this->enemy_attacking |= attacks;
+                    friendly_rooks ^= bitOps.trivial[lsb_from];
+                    continue;
+                }
 
                 while (attacks.any()){
                     int lsb_to = bitscanForward(attacks);
@@ -290,7 +316,7 @@ class MoveGenerator {
 
 
         //Generates all of the bishop moves
-        void generateBishopMoves(Board& board){
+        void generateBishopMoves(Board& board, bool is_enemy){
             bitset<64> blockers = board.bitboards[(int)BitboardPieceType::Black] | board.bitboards[(int)BitboardPieceType::White];
             
             while (friendly_bishops.any()){
@@ -333,6 +359,11 @@ class MoveGenerator {
                 
                 attacks &= eligable;
 
+                if (is_enemy){
+                    this->enemy_attacking |= attacks;
+                    friendly_bishops ^= bitOps.trivial[lsb_from];
+                    continue;
+                }
 
                 while (attacks.any()){
                     int lsb_to = bitscanForward(attacks);
@@ -388,6 +419,8 @@ class MoveGenerator {
         bitset<64> friendly_knights;
         bitset<64> friendly_queens;
         bitset<64> friendly_kings;
+
+        bitset<64> enemy_attacking;
 
         bitset<64> enemy_pieces;
         bitset<64> occupied;

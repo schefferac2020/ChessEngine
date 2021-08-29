@@ -12,7 +12,7 @@ class Game{
     public:
         Game() {
             player1 = new Player("Player 1", true, true, false); // name, is_human, is_white, on_top
-            player2 = new Player("Player 2", true, false, true);
+            player2 = new Player("Player 2 (AI)", false, false, true);
 
             this->current_player = player1;
 
@@ -52,7 +52,6 @@ class Game{
                 current_player->setMoveTo(move_to_pos);
 
                 //Make the human move;
-                cout << "Here" << endl;
                 Move* human_move = current_player->performMove(board);
                 if (human_move){ // If the move is valid;
                     board.makeMove(human_move);
@@ -60,6 +59,19 @@ class Game{
                 }
                 board.stopDragging();
 
+            }
+        }
+
+        void update(){
+            if (!current_player->isHuman()){ //If it is an AI
+                //Make the AI move;
+                Move* ai_move = current_player->performMove(board);
+                if (ai_move){ // If the move is valid;
+                    board.makeMove(ai_move);
+                    switch_player();
+                }else{
+                    cout << "There are no legal moves!!" << endl;
+                }
             }
         }
     private:

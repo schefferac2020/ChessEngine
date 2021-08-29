@@ -42,7 +42,11 @@ class Player {
                 //Not in the set.
                 return nullptr;
             }else{
-                return moves[0];
+                if (moves.empty()){
+                    return nullptr;
+                }else{
+                    return moves[rand() % moves.size()];
+                }
             } 
         }
 

@@ -34,20 +34,30 @@ class Board{
             this->renderer = in_rend;
         }
 
+        void load_from_fen(string fen){
+            int row = 0; int col = 0;
+            for (char ch : fen){
+                if (ch ==' ')
+                    break;
+
+                if (isalpha(ch)){
+                    this->squares[row][col] = ch;
+                    ++col;
+                }else if (isnumber(ch)){
+                    col += ch - '0';
+                }else if (ch == '/'){
+                    ++row;
+                    col = 0;
+                }
+            }
+        }
+
         //Initializes the bitboards. Could initialize from fen later
         void init_board(){
             bitboards.resize(8);
-            this->squares = {
-                                {'r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'},
-                                {'p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'},
-                                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                                {' ', ' ', ' ', ' ', ' ', ' ', ' ', ' '},
-                                {'P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'},
-                                {'R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'}
-
-                            };
+            this->squares.resize(8, vector<char>(8, ' '));
+            //load_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); // Starting position
+            load_from_fen("4k3/p7/8/8/5R2/8/8/4K3 b - - 0 3");
             
             bitset<64> first_bit_string; first_bit_string.set(63, true); // Something like 10000000000... for the top left corner
             for (int row = 0; row < 8; ++row){
@@ -100,10 +110,6 @@ class Board{
 
             filenames = {"orangePawn.png", "orangeKnight.png", "orangeBishop.png", "orangeQueen.png", "orangeKing.png", "orangeRook.png",
                         "bluePawn.png", "blueKnight.png", "blueBishop.png", "blueQueen.png", "blueKing.png", "blueRook.png"};
-            /*
-                WhitePawn=0, WhiteKnight, WhiteBishop, WhiteQueen, WhiteKing, WhiteRook, BlackPawn, BlackKnight, BlackBishop, BlackQueen, BlackKing, BlackRook, Nothing
-            */
-            
         }
 
         Position getTilePos(SDL_Point mouse_pos){
@@ -170,9 +176,6 @@ class Board{
         }
 
 
-
-
-
         //*********************************//
         //***** Class Level Variables *****//
         //*********************************//
@@ -191,8 +194,6 @@ class Board{
         vector<vector<char> > squares;
 
     private:
-
-
 
         //              DRAWING AND RENDERING SECTION
         void drawPieces(){

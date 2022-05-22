@@ -49,6 +49,7 @@ class MoveGenerator {
 
         //Generates enemy moves and stores in enemyAttacking
         void generateEnemyMoves(Board& board) {
+            enemy_attacking.reset();
             generatePawnAttackingMovesLeft(board, true);
             generatePawnAttackingMovesRight(board, true);
 

@@ -58,7 +58,7 @@ class Board{
             bitboards.resize(8);
             this->squares.resize(8, vector<char>(8, ' '));
             load_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); // Starting position
-            //load_from_fen("4k3/p7/8/8/5R2/8/8/4K3 b - - 0 3");
+            //("4k3/p7/8/8/5R2/8/8/4K3 b - - 0 3");
             
             bitset<64> first_bit_string; first_bit_string.set(63, true); // Something like 10000000000... for the top left corner
             for (int row = 0; row < 8; ++row){

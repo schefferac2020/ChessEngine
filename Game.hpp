@@ -12,7 +12,7 @@ class Game{
     public:
         Game() {
             player1 = new Player("Player 1", true, true, false); // name, is_human, is_white, on_top
-            player2 = new Player("Player 2 (AI)", false, false, true);
+            player2 = new Player("Player 2 (AI)", true, false, true);
 
             this->current_player = player1;
 

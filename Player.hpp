@@ -19,7 +19,7 @@ class Player {
     public:
         Player(string in_name, bool in_is_human, bool white_in, bool on_top) : name(in_name), is_human(in_is_human), is_white(white_in) {
             moveGenerator = new MoveGenerator(white_in, on_top);
-         }
+        }
         
 
         //Actually makes the move;

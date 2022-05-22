@@ -187,12 +187,14 @@ class MoveGenerator {
             bitset<64> shifted = on_top_temp ? (pawns >> 9) : ((pawns) << 9);
             shifted &= on_top_temp ? pawn_right_mask : pawn_left_mask;
 
-            shifted &= eligable & other_pieces;
+            
             
             if (is_enemy){
                 this->enemy_attacking |= shifted;
                 return;
             }
+            shifted &= other_pieces;
+            shifted &= eligable;
 
             while (shifted.count()){
                 int lsb = bitscanForward(shifted);
@@ -224,12 +226,15 @@ class MoveGenerator {
             //Do left attacks first
             bitset<64> shifted = on_top_temp ? (pawns >> 7) : ((pawns) << 7);
             shifted &= on_top_temp ? pawn_left_mask : pawn_right_mask;
-            shifted &= eligable & other_pieces;
+            
             
             if (is_enemy){
                 this->enemy_attacking |= shifted;
                 return;
             }
+            
+            shifted &= other_pieces;
+            shifted &= eligable;
 
             while (shifted.count()){
                 int lsb = bitscanForward(shifted);
@@ -258,12 +263,13 @@ class MoveGenerator {
                 int from_square = 63 - lsb_from;
                 Position from = {(from_square - from_square%8)/8, from_square % 8};
 
-                bitset<64> generated_moves = bitOps.knights[from_square] & eligable;
+                bitset<64> generated_moves = bitOps.knights[from_square];
                 if (is_enemy){
                     this->enemy_attacking |= generated_moves;
                     knights ^= bitOps.trivial[lsb_from];
                     continue;
                 }
+                generated_moves &= eligable;
 
                 while (generated_moves.any()){
                     int lsb_to = bitscanForward(generated_moves);
@@ -290,14 +296,17 @@ class MoveGenerator {
                 int from_square = 63 - lsb_from;
                 Position from = {(from_square - from_square%8)/8, from_square % 8};
 
-                bitset<64> generated_moves = bitOps.kings[from_square] & eligable;
-                generated_moves &= ~enemy_attacking;
+                bitset<64> generated_moves = bitOps.kings[from_square];
+                
                 
                 if (is_enemy){
                     this->enemy_attacking |= generated_moves;
                     kings ^= bitOps.trivial[lsb_from];
                     continue;
                 }
+                generated_moves &= ~enemy_attacking;
+
+                generated_moves &= eligable;
                 
 
                 while (generated_moves.any()){
@@ -360,13 +369,14 @@ class MoveGenerator {
                     attacks &= ~bitOps.rays[(int)RayDirection::West][blocker_index];
                 }
                 
-                attacks &= eligable;
+                
 
                 if (is_enemy){
                     this->enemy_attacking |= attacks;
                     rooks ^= bitOps.trivial[lsb_from];
                     continue;
                 }
+                attacks &= eligable;
 
                 while (attacks.any()){
                     int lsb_to = bitscanForward(attacks);
@@ -428,13 +438,14 @@ class MoveGenerator {
                     attacks &= ~bitOps.rays[(int)RayDirection::Northwest][blocker_index];
                 }
                 
-                attacks &= eligable;
+                
 
                 if (is_enemy){
                     this->enemy_attacking |= attacks;
                     bishops ^= bitOps.trivial[lsb_from];
                     continue;
                 }
+                attacks &= eligable;
 
                 while (attacks.any()){
                     int lsb_to = bitscanForward(attacks);

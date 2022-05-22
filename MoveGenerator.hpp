@@ -20,9 +20,13 @@ class MoveGenerator {
         MoveGenerator(bool in_white, bool on_top_in) : is_white(in_white), on_top(on_top_in) { }
 
         vector<Move*>& generateMoves(Board& board){
+            generateEnemyMoves(board);
+
             //Reset all of the env vars
             this->move_list = {};
             resetBitboards(board);
+
+            
 
             //Generate pawn moves ----> TODO <--------------------------------- NOTE NOT EN PASSANT YET
             generatePawnOneForwardMoves(board);
@@ -43,6 +47,32 @@ class MoveGenerator {
             generateKingMoves(board, false);
 
             return this->move_list;
+        }
+
+        void generateEnemyMoves(Board& board){
+            //Switch everything temporarily
+            is_white = !is_white;
+            on_top = !on_top;
+            resetBitboards(board);
+
+            generatePawnAttackingMovesLeft(board, true);
+            generatePawnAttackingMovesRight(board, true);
+
+            //Generate Knight Moves
+            generateKnightMoves(board, true);
+
+            //Generate rook moves
+            generateRookMoves(board, true);
+
+            //Generate bishop moves
+            generateBishopMoves(board, true);
+
+            //Generate king moves
+            generateKingMoves(board, true);
+
+            //Switch everything back and reser
+            is_white = !is_white;
+            on_top = !on_top;
         }
 
 
@@ -227,7 +257,7 @@ class MoveGenerator {
                 Position from = {(from_square - from_square%8)/8, from_square % 8};
 
                 bitset<64> generated_moves = bitOps.kings[from_square] & eligable;
-
+                generated_moves &= ~enemy_attacking;
 
                 if (is_enemy){
                     this->enemy_attacking |= generated_moves;

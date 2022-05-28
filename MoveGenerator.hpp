@@ -331,6 +331,10 @@ class MoveGenerator {
 
             bitset<64> blockers = board.bitboards[(int)BitboardPieceType::Black] | board.bitboards[(int)BitboardPieceType::White];
             
+            if (is_enemy){ //Dont consider the friendly king when generating attacking squares.
+                blockers &= ~friendly_kings;
+            }
+
             while (rooks.any()){
                 int lsb_from = bitscanForward(rooks);
                 int from_square = 63 - lsb_from;
@@ -400,6 +404,10 @@ class MoveGenerator {
 
             bitset<64> blockers = board.bitboards[(int)BitboardPieceType::Black] | board.bitboards[(int)BitboardPieceType::White];
             
+            if (is_enemy){ //Dont consider the friendly king when generating attacking squares.
+                blockers &= ~friendly_kings;
+            }
+
             while (bishops.any()){
                 int lsb_from = bitscanForward(bishops);
                 int from_square = 63 - lsb_from;

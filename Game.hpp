@@ -76,9 +76,9 @@ class Game{
         }
     private:
 
-        void switch_player(){
-            cout << "SWITCHING THE PLAYER TURN!!" << endl;
+        void switch_player(){            
             current_player = (current_player == player1) ? player2 : player1;
+            cout << "It is now " << current_player->getName() << "\'s turn\n";
         }
 
         Board board;

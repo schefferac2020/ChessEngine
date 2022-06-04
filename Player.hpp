@@ -73,6 +73,10 @@ class Player {
             return is_human;
         }
 
+        string getName(){
+            return name;
+        }
+
     private:
 
         Move* next_move;

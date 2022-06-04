@@ -128,7 +128,7 @@ class Board{
             int col_remainder = mouse_pos.x % TILE_WIDTH;
             int col_ind = (int)(mouse_pos.x - col_remainder) / TILE_WIDTH;
 
-            cout << "From --> Row: " << row_ind << " , Col: " << col_ind << endl;
+            // cout << "From --> Row: " << row_ind << " , Col: " << col_ind << endl;
             drag_from = {row_ind, col_ind};
             return drag_from;
 

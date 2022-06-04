@@ -26,6 +26,14 @@ class MoveGenerator {
 
             generateEnemyMoves(board);
 
+            //Check if in check!
+            int num_checkers = enemy_checkers.count();
+            if (num_checkers){
+                std::cout << "YOU ARE IN CHECK!!!! RUN!!! \n";
+                std::cout << "There are " << num_checkers << " checkers \n";
+
+            }
+
             //Generate pawn moves ----> TODO <--------------------------------- NOTE NOT EN PASSANT YET
             generatePawnOneForwardMoves(board);
             generatePawnTwoForwardMoves(board);            
@@ -49,8 +57,10 @@ class MoveGenerator {
 
         //Generates enemy moves and stores in enemyAttacking
         void generateEnemyMoves(Board& board) {
-            enemy_attacking.reset();
+            this->enemy_attacking.reset();
+            this->enemy_checkers.reset();
             generatePawnAttackingMovesLeft(board, true);
+            cout << this->enemy_checkers.count() << " BOOBIES" <<endl;
             generatePawnAttackingMovesRight(board, true);
 
             //Generate Knight Moves
@@ -191,7 +201,6 @@ class MoveGenerator {
             
             if (is_enemy){
                 this->enemy_attacking |= shifted;
-                return;
             }
             shifted &= other_pieces;
             shifted &= eligable;
@@ -203,11 +212,24 @@ class MoveGenerator {
                 int from_square = on_top_temp ? to_square -9 : to_square + 9;
                 Position from = {(from_square - from_square%8)/8, from_square % 8};
 
-                if (is_white)
-                    move_list.push_back(new Move(from, to, PieceType::WhitePawn));
-                else
-                    move_list.push_back(new Move(from, to, PieceType::BlackPawn));
+                //check if the enemy pawn is checking the king
+                if (is_enemy){
+                    int lsb_from = 63-from_square;
+                    bool attacking_king = (bitOps.trivial[lsb] & friendly_kings).any();
+                    cout << attacking_king << endl;
+                    if (attacking_king){
+                        this->enemy_checkers |= bitOps.trivial[lsb_from];
+                    }
+                }else{
+                    if (is_white){
+                        move_list.push_back(new Move(from, to, PieceType::WhitePawn));
+                    }
+                    else{
+                        move_list.push_back(new Move(from, to, PieceType::BlackPawn));
+                    }
+                }
 
+                
 
                 shifted ^= bitOps.trivial[lsb];
             }
@@ -230,7 +252,6 @@ class MoveGenerator {
             
             if (is_enemy){
                 this->enemy_attacking |= shifted;
-                return;
             }
             
             shifted &= other_pieces;
@@ -238,16 +259,28 @@ class MoveGenerator {
 
             while (shifted.count()){
                 int lsb = bitscanForward(shifted);
+
+    
+
                 int to_square = 63 - lsb;
                 Position to = {(to_square - to_square%8)/8, to_square % 8};
                 int from_square = on_top_temp ? to_square -7 : to_square + 7;
                 Position from = {(from_square - from_square%8)/8, from_square % 8};
 
-                if (is_white)
-                    move_list.push_back(new Move(from, to, PieceType::WhitePawn));
-                else
-                    move_list.push_back(new Move(from, to, PieceType::BlackPawn));
-
+                //check if the enemy pawn is checking the king
+                if (is_enemy){
+                    int lsb_from = 63-from_square;
+                    bool attacking_king = (bitOps.trivial[lsb] & friendly_kings).any();
+                    if (attacking_king){
+                        cout << "ATTACKING MOVING RIGHT" << endl;
+                        this->enemy_checkers |= bitOps.trivial[lsb_from];
+                    }
+                }else{
+                    if (is_white)
+                        move_list.push_back(new Move(from, to, PieceType::WhitePawn));
+                    else
+                        move_list.push_back(new Move(from, to, PieceType::BlackPawn));
+                }
 
                 shifted ^= bitOps.trivial[lsb];
             }
@@ -267,6 +300,13 @@ class MoveGenerator {
                 if (is_enemy){
                     this->enemy_attacking |= generated_moves;
                     knights ^= bitOps.trivial[lsb_from];
+                    
+                    //Check if this piece checks the king
+                    bool attacking_king = (generated_moves & friendly_kings).any();
+                    if (attacking_king){
+                        this->enemy_checkers |= bitOps.trivial[lsb_from];
+                    }
+
                     continue;
                 }
                 generated_moves &= eligable;
@@ -378,6 +418,12 @@ class MoveGenerator {
                 if (is_enemy){
                     this->enemy_attacking |= attacks;
                     rooks ^= bitOps.trivial[lsb_from];
+
+                    //Check if this piece checks the king
+                    bool attacking_king = (attacks & friendly_kings).any();
+                    if (attacking_king){
+                        this->enemy_checkers |= bitOps.trivial[lsb_from];
+                    }
                     continue;
                 }
                 attacks &= eligable;
@@ -451,6 +497,12 @@ class MoveGenerator {
                 if (is_enemy){
                     this->enemy_attacking |= attacks;
                     bishops ^= bitOps.trivial[lsb_from];
+
+                    //Check if this piece checks the king
+                    bool attacking_king = (attacks & friendly_kings).any();
+                    if (attacking_king){
+                        this->enemy_checkers |= bitOps.trivial[lsb_from];
+                    }
                     continue;
                 }
                 attacks &= eligable;
@@ -520,6 +572,7 @@ class MoveGenerator {
         bitset<64> enemy_kings;
 
         bitset<64> enemy_attacking;
+        bitset<64> enemy_checkers;
 
         bitset<64> friendly_pieces;
         bitset<64> enemy_pieces;

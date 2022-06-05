@@ -34,6 +34,10 @@ class Board{
             this->renderer = in_rend;
         }
 
+        void setFenPosition(string in_fen){
+            this->fen = in_fen;
+        }
+
         //Currently does not do anything lol
         void load_from_fen(string fen){
             int row = 0; int col = 0;
@@ -57,7 +61,7 @@ class Board{
         void init_board(){
             bitboards.resize(8);
             this->squares.resize(8, vector<char>(8, ' '));
-            load_from_fen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"); // Starting position
+            load_from_fen(fen); // Starting position
             //("4k3/p7/8/8/5R2/8/8/4K3 b - - 0 3");
             //load_from_fen("4k3/6N1/5b2/3R4/8/8/8/4K3 b - - 0 3"); // Double check example
             
@@ -314,6 +318,8 @@ class Board{
         Color lightPieceColor = {255, 191, 134, 255};
         Color darkPieceColor = {51, 153, 255, 255};
         int i = 0;
+
+        string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
         vector<string> filenames;
 };

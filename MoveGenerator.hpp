@@ -28,10 +28,11 @@ class MoveGenerator {
 
             //Check if in check!
             int num_checkers = enemy_checkers.count();
-            
+            cout << num_checkers << endl;
             if (num_checkers == 2){
                 //The only way out is that the king moves
                 generateKingMoves(board, false);
+                return this->move_list;
             }
             else if (num_checkers == 1){
                 //Moves are heavily restricted

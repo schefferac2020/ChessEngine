@@ -12,10 +12,10 @@ class Game{
     public:
         Game() {
             player1 = new Player("Player 1", true, true, false); // name, is_human, is_white, on_top
-            player2 = new Player("Player 2 (AI)", true, false, true);
+            player2 = new Player("Player 2 (AI)", false, false, true);
 
             this->current_player = player1;
-
+            board.setFenPosition("4k3/6N1/5b2/3R4/8/8/8/4K3 b - - 0 3"); 
             board.init_board();
         }
 
@@ -78,7 +78,7 @@ class Game{
 
         void switch_player(){            
             current_player = (current_player == player1) ? player2 : player1;
-            cout << "It is now " << current_player->getName() << "\'s turn\n";
+            cout << "It " << current_player->getName() << "\'s turn\n";
         }
 
         Board board;

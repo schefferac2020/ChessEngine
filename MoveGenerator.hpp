@@ -28,13 +28,33 @@ class MoveGenerator {
 
             //Check if in check!
             int num_checkers = enemy_checkers.count();
+            
             if (num_checkers == 2){
-                //Generate king moves
+                //The only way out is that the king moves
+                generateKingMoves(board, false);
+            }
+            else if (num_checkers == 1){
+                //Moves are heavily restricted
                 generateKingMoves(board, false);
 
-                return this->move_list;
-            }
+                // To get out of check, you can capture the checker
+                bitset<64> capture_mask = enemy_checkers; 
+                
 
+                //Or you can block the checker
+                bitset<64> blocking_mask;
+                //bitset<64> blocking_mask = 
+                if ((enemy_checkers & enemy_bishops).any() || (enemy_checkers & enemy_rooks).any()){
+                    cout << "The enemy is checking with a sliding piece!!" << endl;
+                    blocking_mask = getSliderRouteToKing(board);
+                }else{
+                    cout << "In check but not sliding piece" << endl;
+                    blocking_mask.reset(); // Cannot block this piece
+                }
+                
+                friendly_eligable &= (blocking_mask | capture_mask);
+            }
+            
             //Generate pawn moves ----> TODO <--------------------------------- NOTE NOT EN PASSANT YET
             generatePawnOneForwardMoves(board);
             generatePawnTwoForwardMoves(board);            
@@ -52,6 +72,9 @@ class MoveGenerator {
 
             //Generate king moves
             generateKingMoves(board, false);
+            
+
+
 
             return this->move_list;
         }
@@ -518,6 +541,84 @@ class MoveGenerator {
                 }
                 bishops ^= bitOps.trivial[lsb_from];
             }
+        }
+
+
+        // Generates the sliding route towards the king from a position  <-------------- TODO: This is hack and can be made faster (eg by doing comp at beginning of the program)
+        // Used for finding where the player can play to block a check
+        // from_square = 63 - lsb 
+        bitset<64> getSliderRouteToKing(Board& board){
+            
+
+            int lsb_from = bitscanForward(enemy_checkers);
+            int from_square = 63 - lsb_from;
+            bitset<64> attacks;
+            bitset<64> blockers = friendly_kings;
+
+            //Northeast part
+            bitset<64> masked_blockers = blockers & bitOps.rays[(int)RayDirection::Northeast][from_square];
+            if (masked_blockers.any()){
+                attacks |= bitOps.rays[(int)RayDirection::Northeast][from_square];
+                int blocker_index = 63 - bitscanForward(masked_blockers);
+                attacks &= ~bitOps.rays[(int)RayDirection::Northeast][blocker_index];
+            }
+
+            //Southeast part
+            masked_blockers = blockers & bitOps.rays[(int)RayDirection::Southeast][from_square];
+            if (masked_blockers.any()){
+                attacks |= bitOps.rays[(int)RayDirection::Southeast][from_square];
+                int blocker_index = 63 - bitscanReverse(masked_blockers);
+                attacks &= ~bitOps.rays[(int)RayDirection::Southeast][blocker_index];
+            }
+
+            //Southwest part
+            masked_blockers = blockers & bitOps.rays[(int)RayDirection::Southwest][from_square];
+            if (masked_blockers.any()){
+                attacks |= bitOps.rays[(int)RayDirection::Southwest][from_square];
+                int blocker_index = 63 - bitscanReverse(masked_blockers);
+                attacks &= ~bitOps.rays[(int)RayDirection::Southwest][blocker_index];
+            }
+
+            //Northwest part
+            masked_blockers = blockers & bitOps.rays[(int)RayDirection::Northwest][from_square];
+            if (masked_blockers.any()){
+                attacks |= bitOps.rays[(int)RayDirection::Northwest][from_square];
+                int blocker_index = 63 - bitscanForward(masked_blockers);
+                attacks &= ~bitOps.rays[(int)RayDirection::Northwest][blocker_index];
+            }
+
+            //North part 
+            masked_blockers = blockers & bitOps.rays[(int)RayDirection::North][from_square];
+            if (masked_blockers.any()){
+                attacks |= bitOps.rays[(int)RayDirection::North][from_square];
+                int blocker_index = 63 - bitscanForward(masked_blockers);
+                attacks &= ~bitOps.rays[(int)RayDirection::North][blocker_index];
+            }
+
+            //East part
+            masked_blockers = blockers & bitOps.rays[(int)RayDirection::East][from_square];
+            if (masked_blockers.any()){
+                attacks |= bitOps.rays[(int)RayDirection::East][from_square];
+                int blocker_index = 63 - bitscanReverse(masked_blockers);
+                attacks &= ~bitOps.rays[(int)RayDirection::East][blocker_index];
+            }
+
+            //South part
+            masked_blockers = blockers & bitOps.rays[(int)RayDirection::South][from_square];
+            if (masked_blockers.any()){
+                attacks |= bitOps.rays[(int)RayDirection::South][from_square];
+                int blocker_index = 63 - bitscanReverse(masked_blockers);
+                attacks &= ~bitOps.rays[(int)RayDirection::South][blocker_index];
+            }
+
+            //West part
+            masked_blockers = blockers & bitOps.rays[(int)RayDirection::West][from_square];
+            if (masked_blockers.any()){
+                attacks |= bitOps.rays[(int)RayDirection::West][from_square];
+                int blocker_index = 63 - bitscanForward(masked_blockers);
+                attacks &= ~bitOps.rays[(int)RayDirection::West][blocker_index];
+            }
+            return attacks;
         }
 
         //Returns bit index of LSB (starting from left) 011000 would return 3

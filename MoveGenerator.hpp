@@ -28,10 +28,11 @@ class MoveGenerator {
 
             //Check if in check!
             int num_checkers = enemy_checkers.count();
-            if (num_checkers){
-                std::cout << "YOU ARE IN CHECK!!!! RUN!!! \n";
-                std::cout << "There are " << num_checkers << " checkers \n";
+            if (num_checkers == 2){
+                //Generate king moves
+                generateKingMoves(board, false);
 
+                return this->move_list;
             }
 
             //Generate pawn moves ----> TODO <--------------------------------- NOTE NOT EN PASSANT YET
@@ -60,7 +61,6 @@ class MoveGenerator {
             this->enemy_attacking.reset();
             this->enemy_checkers.reset();
             generatePawnAttackingMovesLeft(board, true);
-            cout << this->enemy_checkers.count() << " BOOBIES" <<endl;
             generatePawnAttackingMovesRight(board, true);
 
             //Generate Knight Moves
@@ -272,7 +272,6 @@ class MoveGenerator {
                     int lsb_from = 63-from_square;
                     bool attacking_king = (bitOps.trivial[lsb] & friendly_kings).any();
                     if (attacking_king){
-                        cout << "ATTACKING MOVING RIGHT" << endl;
                         this->enemy_checkers |= bitOps.trivial[lsb_from];
                     }
                 }else{

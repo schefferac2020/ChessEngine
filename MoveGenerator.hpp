@@ -161,7 +161,7 @@ class MoveGenerator {
         //Generates all single forward pawn moves
         void generatePawnOneForwardMoves(Board& board){
             //This is a non_attacking move so we want to make any place with a piece not eligable
-            bitset<64> current_eligable = ~board.bitboards[(int)BitboardPieceType::White] & ~board.bitboards[(int)BitboardPieceType::Black];
+            bitset<64> current_eligable = ~board.bitboards[(int)BitboardPieceType::White] & ~board.bitboards[(int)BitboardPieceType::Black] & friendly_eligable;
             bitset<64> shifted = on_top ? (friendly_pawns >> 8) & current_eligable : (friendly_pawns << 8) & current_eligable;
 
 
@@ -185,7 +185,7 @@ class MoveGenerator {
         //Generates all double forward pawn moves
         void generatePawnTwoForwardMoves(Board& board){
             //This is a non_attacking move so we want to make any place with a piece not eligable
-            bitset<64> current_eligable = ~board.bitboards[(int)BitboardPieceType::White] & ~board.bitboards[(int)BitboardPieceType::Black];
+            bitset<64> current_eligable = ~board.bitboards[(int)BitboardPieceType::White] & ~board.bitboards[(int)BitboardPieceType::Black] & friendly_eligable;
             bitset<64> shifted = on_top ? ((friendly_pawns & pawn_starting_pos) >> 16) & current_eligable : ((friendly_pawns & pawn_starting_pos) << 16) & current_eligable;
 
             while (shifted.count()){
